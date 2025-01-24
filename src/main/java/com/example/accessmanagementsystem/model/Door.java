@@ -12,7 +12,12 @@ public class Door {
     private Long id;
 
     private String number;
-    private String rfid;
+
+    private <String,boolen> rfids; // to będzie tabela <String,boolean> bazowo false
+    // [0] <444-944-8348-333, false>
+    // [1] <434-325-234-532, true>
+    // i jakiegos settera do zmiany tego booelan i to będzie ustwaiało dostęp
+
 
     // Getter i Setter dla id
     public Long getId() {
@@ -32,12 +37,12 @@ public class Door {
         this.number = number;
     }
 
-    // Getter i Setter dla rfid
-    public String getRfid() {
-        return rfid;
-    }
-
-    public void setRfid(String rfid) {
-        this.rfid = rfid;
-    }
+//    // Getter i Setter dla rfid
+//    public String getRfid() {
+//        return rfid;
+//    }
+//
+//    public void setRfid(String rfid) {
+//        this.rfid = rfid;
+//    }
 }
