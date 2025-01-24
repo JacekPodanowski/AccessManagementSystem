@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Click Counter</title>
+</head>
+<body>
+<h1>Click Counter</h1>
+<p>Number of clicks: <span th:text="${clickCount}">0</span></p>
+<form action="/increment" method="post">
+    <button type="submit">Click Me!</button>
+</form>
+</body>
+</html>
