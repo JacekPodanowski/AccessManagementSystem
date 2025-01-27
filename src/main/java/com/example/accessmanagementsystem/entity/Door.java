@@ -20,6 +20,6 @@ public class Door {
     private String number;
 
     @OneToMany(mappedBy = "door", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
-    private List<Access> logs;
+    private List<Access> accesses;
 
 }

@@ -3,12 +3,14 @@ package com.example.accessmanagementsystem.controller;
 import com.example.accessmanagementsystem.entity.Door;
 import com.example.accessmanagementsystem.service.DoorService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-@Controller
-@RequestMapping("/")
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/door")
 public class DoorController {
     private final DoorService doorService;
 
@@ -18,23 +20,39 @@ public class DoorController {
     }
 
     @GetMapping
-    public String getAllDoors(Model model) {
-        model.addAttribute("doors", doorService.getAllDoors());
-        return "doors";
+    public ResponseEntity<List<Door>> getAllDoors() {
+        List<Door> doors = doorService.getAllDoors();
+
+        return ResponseEntity
+                .ok()
+                .body(doors);
     }
 
-    @PostMapping("/give-access")
-    public String giveAccess(@RequestParam Long id) {
-        // Logika nadawania dostępu (możesz ją rozwinąć)
-        System.out.println("Access given to door with ID: " + id);
-        return "redirect:/";
+    @PostMapping
+    public ResponseEntity<Void> addDoor(@RequestParam String number) {
+        try {
+            doorService.createDoor(number);
+            return ResponseEntity
+                    .status(HttpStatus.CREATED)
+                    .build();
+        } catch (Exception e) {
+            return ResponseEntity
+                    .status(HttpStatus.CONFLICT)
+                    .build();
+        }
     }
 
-    @PostMapping("/add-door")
-    public String addDoor(@RequestParam String number, @RequestParam String rfid) {
-        Door door = new Door();
-        door.setNumber(number);
-        doorService.saveDoor(door);
-        return "redirect:/";
+    @DeleteMapping
+    public ResponseEntity<Void> deleteDoor(@RequestParam String number) {
+        try {
+            doorService.deleteDoor(number);
+            return ResponseEntity
+                    .status(HttpStatus.NO_CONTENT)
+                    .build();
+        } catch (Exception e) {
+            return ResponseEntity
+                    .notFound()
+                    .build();
+        }
     }
 }

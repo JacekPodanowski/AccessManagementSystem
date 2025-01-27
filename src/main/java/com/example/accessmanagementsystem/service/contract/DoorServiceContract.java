@@ -10,8 +10,8 @@ public interface DoorServiceContract {
     List<Door> getAllDoors();
 
     @Transactional
-    void createDoor(Door door);
+    void createDoor(String number);
 
     @Transactional
-    void deleteDoor(Door door);
+    void deleteDoor(String number);
 }

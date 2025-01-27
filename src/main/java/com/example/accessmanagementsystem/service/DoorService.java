@@ -27,16 +27,18 @@ public class DoorService implements DoorServiceContract {
 
     @Override
     @Transactional
-    public void createDoor(Door door) {
+    public void createDoor(String number) {
+        Door door = new Door();
+        door.setNumber(number);
+
         doorRepository.save(door);
     }
 
     @Override
     @Transactional
-    public void deleteDoor(Door door) {
-        if(!doorRepository.existsByNumber(door.getNumber())) {
-            throw new DoorNotFound(door.getNumber());
-        }
+    public void deleteDoor(String number) {
+        Door door = doorRepository.findByNumber(number)
+                        .orElseThrow(() -> new DoorNotFound(number));
 
         doorRepository.delete(door);
     }

@@ -3,11 +3,14 @@ package com.example.accessmanagementsystem.service;
 import com.example.accessmanagementsystem.entity.Access;
 import com.example.accessmanagementsystem.entity.Door;
 import com.example.accessmanagementsystem.exception.AccessNotFound;
+import com.example.accessmanagementsystem.exception.DoorNotFound;
 import com.example.accessmanagementsystem.repository.AccessRepository;
 import com.example.accessmanagementsystem.repository.DoorRepository;
 import com.example.accessmanagementsystem.service.contract.AccessServiceContract;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class AccessService implements AccessServiceContract {
@@ -35,9 +38,9 @@ public class AccessService implements AccessServiceContract {
         access.setAccess(false);
     }
 
-    @Override
-    public Access createAccess(String doorNumber, String rfid) {
-        Door door = doorRepository.findByNumber(doorNumber);
+    private Access createAccess(String doorNumber, String rfid) {
+        Door door = doorRepository.findByNumber(doorNumber)
+                .orElseThrow(() -> new DoorNotFound(doorNumber));
 
         Access access = new Access();
         access.setDoor(door);
@@ -48,15 +51,17 @@ public class AccessService implements AccessServiceContract {
     }
 
     @Override
-    public Access getAccess(String doorNumber, String rfid) {
-        if(!accessRepository.existsByDoorNumberAndRfid(doorNumber, rfid)) {
-            throw new AccessNotFound(doorNumber, rfid);
-        }
-
-        return accessRepository.findByDoorNumberAndRfid(doorNumber, rfid);
+    public List<Access> getAccessesByDoor(String doorNumber) {
+        return accessRepository.findByDoorNumber(doorNumber);
     }
 
-    private Access findOrCreateAccess(String doorNumber, String rfid) {
+    private Access getAccess(String doorNumber, String rfid) {
+        return accessRepository.findByDoorNumberAndRfid(doorNumber, rfid)
+                .orElseThrow(() -> new AccessNotFound(doorNumber, rfid));
+    }
+
+    @Override
+    public Access findOrCreateAccess(String doorNumber, String rfid) {
         Access access;
         if(!accessRepository.existsByDoorNumberAndRfid(doorNumber, rfid)) {
             access = createAccess(doorNumber, rfid);

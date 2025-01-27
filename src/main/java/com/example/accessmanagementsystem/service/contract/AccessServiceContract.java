@@ -1,7 +1,8 @@
 package com.example.accessmanagementsystem.service.contract;
 
 import com.example.accessmanagementsystem.entity.Access;
-import com.example.accessmanagementsystem.entity.Door;
+
+import java.util.List;
 
 public interface AccessServiceContract {
 
@@ -9,7 +10,7 @@ public interface AccessServiceContract {
 
     void removeAccess(String doorNumber, String rfid);
 
-    Access createAccess(String doorNumber, String rfid);
+    List<Access> getAccessesByDoor(String doorNumber);
 
-    Access getAccess(String doorNumber, String rfid);
+    Access findOrCreateAccess(String doorNumber, String rfid);
 }
