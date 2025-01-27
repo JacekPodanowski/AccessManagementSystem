@@ -1,7 +1,8 @@
-package com.example.accessmanagementsystem.conteroller;
+package com.example.accessmanagementsystem.controller;
 
-import com.example.accessmanagementsystem.model.Door;
+import com.example.accessmanagementsystem.entity.Door;
 import com.example.accessmanagementsystem.service.DoorService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 public class DoorController {
     private final DoorService doorService;
 
+    @Autowired
     public DoorController(DoorService doorService) {
         this.doorService = doorService;
     }
@@ -32,7 +34,6 @@ public class DoorController {
     public String addDoor(@RequestParam String number, @RequestParam String rfid) {
         Door door = new Door();
         door.setNumber(number);
-        door.setRfid(rfid);
         doorService.saveDoor(door);
         return "redirect:/";
     }
