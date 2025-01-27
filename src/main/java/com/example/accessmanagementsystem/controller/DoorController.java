@@ -34,7 +34,8 @@ public class DoorController {
     }
 
     @PostMapping
-    public ResponseEntity<Void> addDoor(@RequestParam String number) {
+    public ResponseEntity<Void> addDoor(@RequestBody Door door) {
+        String number = door.getNumber();
         try {
             doorService.createDoor(number);
             logger.info("Door created with number: {}", number);
@@ -49,16 +50,16 @@ public class DoorController {
         }
     }
 
-    @DeleteMapping
-    public ResponseEntity<Void> deleteDoor(@RequestParam String number) {
+    @DeleteMapping("/{doorNumber}")
+    public ResponseEntity<Void> deleteDoor(@PathVariable String doorNumber) {
         try {
-            doorService.deleteDoor(number);
-            logger.info("Door deleted with number: {}", number);
+            doorService.deleteDoor(doorNumber);
+            logger.info("Door deleted with number: {}", doorNumber);
             return ResponseEntity
                     .status(HttpStatus.NO_CONTENT)
                     .build();
         } catch (Exception e) {
-            logger.error("Error deleting door with number: {}", number, e);
+            logger.error("Error deleting door with number: {}", doorNumber, e);
             return ResponseEntity
                     .notFound()
                     .build();

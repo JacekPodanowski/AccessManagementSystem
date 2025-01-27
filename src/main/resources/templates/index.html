@@ -1,13 +1,182 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="en">
 <head>
-    <title>Click Counter</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Door Access Management</title>
+    <link href="/styles/output.css" rel="stylesheet">
+    <script defer src="/scripts/access-management.js"></script>
+    <script defer src="/scripts/door-management.js"></script>
 </head>
-<body>
-<h1>Click Counter</h1>
-<p>Number of clicks: <span th:text="${clickCount}">0</span></p>
-<form action="/increment" method="post">
-    <button type="submit">Click Me!</button>
-</form>
+<body class="bg-gray-100 min-h-screen flex flex-col items-center p-4">
+<header class="text-2xl font-bold text-gray-800 mb-6">Door Management System</header>
+
+<div id="add-door-container" class="bg-white p-6 rounded-lg shadow-lg w-full max-w-md mb-6">
+    <input
+            type="text"
+            id="door-number"
+            placeholder="Enter door number"
+            class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 mb-4"
+    >
+    <button
+            id="add-door-btn"
+            onclick="handleAddDoor()"
+            class="w-full bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600 transition duration-200"
+    >
+        Add
+    </button>
+</div>
+
+<table class="w-full max-w-4xl bg-white shadow-lg rounded-lg">
+    <thead class="bg-blue-500 text-white">
+    <tr>
+        <th class="text-left p-4">Door Number</th>
+        <th class="text-left p-4">RFIDs</th>
+        <th class="text-left p-4">Actions</th>
+    </tr>
+    </thead>
+    <tbody id="door-table" class="divide-y divide-gray-200">
+    </tbody>
+</table>
 </body>
+
+<script>
+    /**
+     * Handles the "Add" button click event.
+     */
+    async function handleAddDoor() {
+        const doorNumberInput = document.getElementById('door-number');
+        const doorNumber = doorNumberInput.value.trim();
+
+        if (!doorNumber) {
+            alert("Please enter a valid door number.");
+            return;
+        }
+
+        try {
+            const payload = {
+                number: doorNumber
+            }
+            await createDoor(payload);
+            alert("Door added successfully.");
+            doorNumberInput.value = "";
+            await initializeDoorTable();
+        } catch (error) {
+            alert(error.message);
+        }
+    }
+
+    /**
+     * Toggles the access state (granted or denied) and updates the table.
+     * @param {string} doorNumber - The door number where the RFID belongs.
+     * @param {string} rfid - The RFID that needs to be updated.
+     * @param {boolean} currentAccess - The current access state.
+     */
+    async function toggleAccess(doorNumber, rfid, currentAccess) {
+        try {
+            if (currentAccess) {
+                await removeAccess(doorNumber, rfid);
+            } else {
+                await giveAccess(doorNumber, rfid);
+            }
+            await initializeDoorTable();  // Refresh the table after the action
+        } catch (error) {
+            alert(error.message);
+        }
+    }
+
+    /**
+     * Fetches all doors from the backend and initializes the door table.
+     */
+    async function initializeDoorTable() {
+        try {
+            const doors = await fetchDoors();
+            const doorTable = document.getElementById('door-table');
+            doorTable.innerHTML = '';
+            for (const door of doors) {
+                const row = document.createElement('tr');
+
+                const accesses = await fetchAccessesForDoor(door.number);
+                const accessTable = `
+                    <table class="w-full border border-gray-300">
+                        <thead>
+                            <tr class="bg-gray-200">
+                                <th class="p-2 border border-gray-300">RFID</th>
+                                <th class="p-2 border border-gray-300">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${accesses.map((access) =>
+                                            `<tr>
+                                                <td class="p-2 border border-gray-300">${access.rfid}</td>
+                                                <td class="p-2 border border-gray-300">
+                                                    <button
+                                                            onclick="toggleAccess(${door.number}, ${access.rfid}, ${access.access})"
+                                                            class="${access.access ? 'bg-green-500 hover:bg-green-600' : 'bg-red-500 hover:bg-red-600'} text-white px-4 py-1 rounded-md transition duration-200"
+                                                        >
+                                                        ${access.access ? 'Granted' : 'Denied'}
+                                                    </button>
+                                                </td>
+                                            </tr>`).join('')}
+                        </tbody>
+                    </table>
+                `;
+
+                row.innerHTML = `
+                <td class="p-4">${door.number}</td>
+                <td class="p-4">${accesses.length ? accessTable : 'None'}</td>
+                <td class="p-4">
+                    <button
+                        onclick="handleDeleteDoor('${door.number}')"
+                        class="bg-red-500 text-white px-4 py-1 rounded-md hover:bg-red-600 transition duration-200"
+                    >
+                        Delete
+                    </button>
+                </td>
+            `;
+
+                doorTable.appendChild(row);
+            }
+        } catch (error) {
+            alert(error.message);
+        }
+    }
+
+    /**
+     * Updates the door table when notified by another client of changes.
+     */
+    function setupTableUpdateListener() {
+        const eventSource = new EventSource(`${apiBase}/events`);
+        eventSource.onmessage = () => {
+            initializeDoorTable(); // Refresh table when a message is received
+        };
+        eventSource.onerror = (error) => {
+            console.error("EventSource error:", error);
+            eventSource.close();
+        };
+    }
+
+    /**
+     * Handles the "Delete" button click event.
+     * @param {string} doorNumber - The door number to delete.
+     */
+    async function handleDeleteDoor(doorNumber) {
+        if (!confirm("Are you sure you want to delete this door?")) {
+            return;
+        }
+
+        try {
+            await deleteDoorByDoorNumber(doorNumber);
+            alert("Door deleted successfully.");
+            await initializeDoorTable(); // Refresh the table
+        } catch (error) {
+            alert(error.message);
+        }
+    }
+
+    document.addEventListener("DOMContentLoaded", async () => {
+        await initializeDoorTable();
+        //setupTableUpdateListener()
+    });
+</script>
 </html>
