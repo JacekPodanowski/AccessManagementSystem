@@ -36,7 +36,7 @@ public class DoorService implements DoorServiceContract {
 
     @Override
     @Transactional
-    public void deleteDoor(String number) {
+    public void deleteDoor(String number) throws DoorNotFound {
         Door door = doorRepository.findByNumber(number)
                         .orElseThrow(() -> new DoorNotFound(number));
 

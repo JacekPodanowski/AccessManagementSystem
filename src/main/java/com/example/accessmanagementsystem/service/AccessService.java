@@ -29,6 +29,7 @@ public class AccessService implements AccessServiceContract {
         Access access = findOrCreateAccess(doorNumber, rfid);
 
         access.setAccess(true);
+        accessRepository.save(access);
     }
 
     @Override
@@ -36,9 +37,10 @@ public class AccessService implements AccessServiceContract {
         Access access = findOrCreateAccess(doorNumber, rfid);
 
         access.setAccess(false);
+        accessRepository.save(access);
     }
 
-    private Access createAccess(String doorNumber, String rfid) {
+    private Access createAccess(String doorNumber, String rfid) throws DoorNotFound {
         Door door = doorRepository.findByNumber(doorNumber)
                 .orElseThrow(() -> new DoorNotFound(doorNumber));
 
@@ -55,13 +57,13 @@ public class AccessService implements AccessServiceContract {
         return accessRepository.findByDoorNumber(doorNumber);
     }
 
-    private Access getAccess(String doorNumber, String rfid) {
+    private Access getAccess(String doorNumber, String rfid) throws AccessNotFound {
         return accessRepository.findByDoorNumberAndRfid(doorNumber, rfid)
                 .orElseThrow(() -> new AccessNotFound(doorNumber, rfid));
     }
 
     @Override
-    public Access findOrCreateAccess(String doorNumber, String rfid) {
+    public Access findOrCreateAccess(String doorNumber, String rfid) throws DoorNotFound {
         Access access;
         if(!accessRepository.existsByDoorNumberAndRfid(doorNumber, rfid)) {
             access = createAccess(doorNumber, rfid);

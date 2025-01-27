@@ -1,5 +1,7 @@
 package com.example.accessmanagementsystem.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -20,6 +22,7 @@ public class Door {
     private String number;
 
     @OneToMany(mappedBy = "door", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    @JsonBackReference
     private List<Access> accesses;
 
 }

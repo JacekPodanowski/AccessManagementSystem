@@ -1,5 +1,7 @@
 package com.example.accessmanagementsystem.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -32,5 +34,6 @@ public class Access {
     @ManyToOne(cascade = CascadeType.DETACH)
     @JoinColumn(name = "door", nullable = false, referencedColumnName = "number")
     @OnDelete(action = OnDeleteAction.CASCADE)
+    @JsonManagedReference
     private Door door;
 }
