@@ -1,13 +1,179 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="en">
 <head>
-    <title>Click Counter</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Door Access Management</title>
+    <script>
+        function addDoor() {
+            const doorNumber = document.getElementById('door-number').value;
+            if (doorNumber.trim() === '') return;
+
+            const table = document.getElementById('door-table');
+            const row = table.insertRow();
+
+            const cellDoorNumber = row.insertCell(0);
+            const cellRFIDList = row.insertCell(1);
+
+            cellDoorNumber.textContent = doorNumber;
+            cellRFIDList.innerHTML = '<table class="rfid-inner-table"><thead><tr><th>RFID</th><th>Access</th></tr></thead><tbody class="rfid-list"></tbody></table><div class="access-control"><input type="text" placeholder="Enter RFID" class="rfid-input"><button class="add-rfid-btn" onclick="addRFID(this)">Add RFID</button></div>';
+        }
+
+        function addRFID(button) {
+            const rfidInput = button.previousElementSibling;
+            const rfidValue = rfidInput.value;
+            if (rfidValue.trim() === '') return;
+
+            const rfidList = button.closest('td').querySelector('.rfid-list');
+            const rfidRow = rfidList.insertRow();
+
+            const rfidNumberCell = rfidRow.insertCell(0);
+            const rfidAccessCell = rfidRow.insertCell(1);
+
+            rfidNumberCell.textContent = rfidValue;
+            rfidAccessCell.innerHTML = '<button class="no-access" onclick="toggleAccess(this)">No Access</button>';
+            rfidInput.value = '';
+        }
+
+        function toggleAccess(button) {
+            if (button.textContent === 'No Access') {
+                button.textContent = 'Access';
+                button.style.backgroundColor = 'green';
+            } else {
+                button.textContent = 'No Access';
+                button.style.backgroundColor = 'red';
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f0f0;
+        }
+
+        header {
+            background-color: #ffa500;
+            padding: 10px;
+            text-align: center;
+            color: black;
+            font-weight: bold;
+            font-size: 1.5em;
+            position: sticky;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+        }
+
+        th {
+            background-color: #f4f4f4;
+        }
+
+        button {
+            padding: 5px 10px;
+            border: none;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .no-access {
+            background-color: red;
+        }
+
+        .access {
+            background-color: green;
+        }
+
+        #add-door-container {
+            margin-bottom: 20px;
+            padding: 20px;
+        }
+
+        #door-number {
+            padding: 5px;
+            margin-right: 10px;
+            width: 200px;
+        }
+
+        #add-door-btn {
+            padding: 5px 15px;
+            background-color: blue;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        #add-door-btn:hover {
+            background-color: darkblue;
+        }
+
+        .rfid-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .rfid-inner-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .rfid-inner-table th, .rfid-inner-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+        }
+
+        .rfid-input {
+            margin-top: 5px;
+            margin-right: 5px;
+            padding: 5px;
+            width: 150px;
+        }
+
+        .add-rfid-btn {
+            padding: 5px 10px;
+            background-color: orange;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        .add-rfid-btn:hover {
+            background-color: darkorange;
+        }
+    </style>
 </head>
 <body>
-<h1>Click Counter</h1>
-<p>Number of clicks: <span th:text="${clickCount}">0</span></p>
-<form action="/increment" method="post">
-    <button type="submit">Click Me!</button>
-</form>
+<header>System Kontroli Drzwi</header>
+
+<div id="add-door-container">
+    <input type="text" id="door-number" placeholder="Enter door number">
+    <button id="add-door-btn" onclick="addDoor()">Add</button>
+</div>
+
+<table>
+    <thead>
+    <tr>
+        <th>Door Number</th>
+        <th>RFIDs</th>
+    </tr>
+    </thead>
+    <tbody id="door-table">
+    <!-- Rows will be added here dynamically -->
+    </tbody>
+</table>
 </body>
 </html>
