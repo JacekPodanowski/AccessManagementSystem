@@ -1,4 +1,4 @@
-const apiBase = "http://localhost:8080/api"
+const apiBase = "/api"
 
 /**
  * Fetches all countries from the backend.

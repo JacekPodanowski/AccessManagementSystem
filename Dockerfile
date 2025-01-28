@@ -8,6 +8,7 @@ WORKDIR /app
 COPY . .
 
 # Kompilacja aplikacji
+RUN chmod +x mvnw
 RUN ./mvnw clean package -DskipTests
 
 # Tworzenie finalnego obrazu
