@@ -106,10 +106,10 @@
                         <tbody>
                             ${accesses.map((access) =>
                                             `<tr>
-                                                <td class="p-2 border border-gray-300">${access.rfid}</td>
+                                                <td class="p-2 border border-gray-300">'${access.rfid}'</td>
                                                 <td class="p-2 border border-gray-300">
                                                     <button
-                                                            onclick="toggleAccess(${door.number}, ${access.rfid}, ${access.access})"
+                                                            onclick="toggleAccess(${door.number}, '${access.rfid}', ${access.access})"
                                                             class="${access.access ? 'bg-green-500 hover:bg-green-600' : 'bg-red-500 hover:bg-red-600'} text-white px-4 py-1 rounded-md transition duration-200"
                                                         >
                                                         ${access.access ? 'Granted' : 'Denied'}
