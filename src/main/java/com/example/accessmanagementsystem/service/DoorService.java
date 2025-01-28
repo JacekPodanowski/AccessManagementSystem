@@ -4,6 +4,8 @@ import com.example.accessmanagementsystem.exception.DoorNotFound;
 import com.example.accessmanagementsystem.entity.Door;
 import com.example.accessmanagementsystem.repository.DoorRepository;
 import com.example.accessmanagementsystem.service.contract.DoorServiceContract;
+import com.example.accessmanagementsystem.service.contract.EventServiceContract;
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -11,14 +13,11 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 @Service
+@AllArgsConstructor(onConstructor = @__(@Autowired))
 public class DoorService implements DoorServiceContract {
 
     private final DoorRepository doorRepository;
-
-    @Autowired
-    public DoorService(DoorRepository doorRepository) {
-        this.doorRepository = doorRepository;
-    }
+    private final EventServiceContract eventService;
 
     @Override
     public List<Door> getAllDoors() {
@@ -32,6 +31,8 @@ public class DoorService implements DoorServiceContract {
         door.setNumber(number);
 
         doorRepository.save(door);
+
+        eventService.emitEvent(String.format("Created door with number %s", number));
     }
 
     @Override
@@ -40,6 +41,8 @@ public class DoorService implements DoorServiceContract {
         Door door = doorRepository.findByNumber(number)
                         .orElseThrow(() -> new DoorNotFound(number));
 
-        doorRepository.delete(door);
+        doorRepository.delete(door);;
+
+        eventService.emitEvent(String.format("Deleted door with number %s", number));
     }
 }

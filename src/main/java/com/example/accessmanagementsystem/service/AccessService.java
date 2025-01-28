@@ -7,22 +7,20 @@ import com.example.accessmanagementsystem.exception.DoorNotFound;
 import com.example.accessmanagementsystem.repository.AccessRepository;
 import com.example.accessmanagementsystem.repository.DoorRepository;
 import com.example.accessmanagementsystem.service.contract.AccessServiceContract;
+import com.example.accessmanagementsystem.service.contract.EventServiceContract;
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
+@AllArgsConstructor(onConstructor = @__(@Autowired))
 public class AccessService implements AccessServiceContract {
 
     private final AccessRepository accessRepository;
     private final DoorRepository doorRepository;
-
-    @Autowired
-    public AccessService(AccessRepository accessRepository, DoorRepository doorRepository) {
-        this.accessRepository = accessRepository;
-        this.doorRepository = doorRepository;
-    }
+    private final EventServiceContract eventService;
 
     @Override
     public void giveAccess(String doorNumber, String rfid) {
@@ -30,6 +28,8 @@ public class AccessService implements AccessServiceContract {
 
         access.setAccess(true);
         accessRepository.save(access);
+
+        eventService.emitEvent(String.format("Access given to door %s for RFID %s", doorNumber, rfid));
     }
 
     @Override
@@ -38,6 +38,8 @@ public class AccessService implements AccessServiceContract {
 
         access.setAccess(false);
         accessRepository.save(access);
+
+        eventService.emitEvent(String.format("Access removed to door %s for RFID %s", doorNumber, rfid));
     }
 
     private Access createAccess(String doorNumber, String rfid) throws DoorNotFound {
@@ -49,7 +51,11 @@ public class AccessService implements AccessServiceContract {
         access.setRfid(rfid);
         access.setAccess(false);
 
-        return accessRepository.save(access);
+        Access savedAccess = accessRepository.save(access);
+
+        eventService.emitEvent(String.format("Access created to door %s for RFID %s", doorNumber, rfid));
+
+        return savedAccess;
     }
 
     @Override

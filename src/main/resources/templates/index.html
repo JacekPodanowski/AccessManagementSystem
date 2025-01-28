@@ -60,7 +60,6 @@
             await createDoor(payload);
             alert("Door added successfully.");
             doorNumberInput.value = "";
-            await initializeDoorTable();
         } catch (error) {
             alert(error.message);
         }
@@ -79,7 +78,6 @@
             } else {
                 await giveAccess(doorNumber, rfid);
             }
-            await initializeDoorTable();  // Refresh the table after the action
         } catch (error) {
             alert(error.message);
         }
@@ -148,7 +146,7 @@
     function setupTableUpdateListener() {
         const eventSource = new EventSource(`${apiBase}/events`);
         eventSource.onmessage = () => {
-            initializeDoorTable(); // Refresh table when a message is received
+            initializeDoorTable();
         };
         eventSource.onerror = (error) => {
             console.error("EventSource error:", error);
@@ -168,7 +166,6 @@
         try {
             await deleteDoorByDoorNumber(doorNumber);
             alert("Door deleted successfully.");
-            await initializeDoorTable(); // Refresh the table
         } catch (error) {
             alert(error.message);
         }
@@ -176,7 +173,7 @@
 
     document.addEventListener("DOMContentLoaded", async () => {
         await initializeDoorTable();
-        //setupTableUpdateListener()
+        setupTableUpdateListener()
     });
 </script>
 </html>

@@ -2,6 +2,7 @@ package com.example.accessmanagementsystem.controller;
 
 import com.example.accessmanagementsystem.entity.Access;
 import com.example.accessmanagementsystem.service.AccessService;
+import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,16 +13,12 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/access")
+@AllArgsConstructor(onConstructor = @__(@Autowired))
 public class AccessController {
 
     private static final Logger logger = LoggerFactory.getLogger(AccessController.class);
 
     private final AccessService accessService;
-
-    @Autowired
-    public AccessController(AccessService accessService) {
-        this.accessService = accessService;
-    }
 
     @GetMapping("/{doorNumber}")
     public ResponseEntity<List<Access>> getAccessesByDoor(
