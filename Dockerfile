@@ -1,19 +1,15 @@
-# Użyj obrazu JDK 21 jako bazy
-FROM eclipse-temurin:21-jdk-alpine
+# Użyj obrazu OpenJDK 21 jako bazy
+FROM eclipse-temurin:21-jre-alpine
 
-# Ustaw katalog roboczy
+# Ustaw katalog roboczy w kontenerze
 WORKDIR /app
 
-# Skopiuj plik pom.xml i inne pliki wymagane do budowy
-COPY pom.xml ./
-COPY src ./src
+# Skopiuj plik JAR do kontenera
+COPY target/AccessManagementSystem-0.0.1-SNAPSHOT.jar app.jar
 
-# Pobierz zależności i zbuduj projekt
-RUN ./mvnw clean package -DskipTests
+# Ustawienie portu (Cloud Run automatycznie przydziela PORT)
+ENV PORT 8080
+EXPOSE 8080
 
-# Skopiuj zbudowany plik JAR (znajduje się w target/)
-ARG JAR_FILE=target/*.jar
-COPY ${JAR_FILE} app.jar
-
-# Punkt wejścia aplikacji
+# Uruchom aplikację Spring Boot
 ENTRYPOINT ["java", "-jar", "/app.jar"]
